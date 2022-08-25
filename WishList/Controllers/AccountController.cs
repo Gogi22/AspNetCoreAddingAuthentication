@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace WishList.Controllers
         {
             return View();
         }
-        
+
         [HttpPost]
         [AllowAnonymous]
         public IActionResult Register(RegisterViewModel model)
@@ -46,5 +47,44 @@ namespace WishList.Controllers
 
             return View(model);
         }
+
+    
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false).GetAwaiter().GetResult();
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
+            
+            return new RedirectToActionResult( "Index", "Item", new{});
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            _signInManager.SignOutAsync();
+            return new RedirectToActionResult( "Index", "Home", new{});
+        }
+        
     }
 }
+            
